@@ -1,7 +1,8 @@
 import asyncio
+import time
 from typing import Type
 
-from telethon import TelegramClient
+from telethon import TelegramClient, errors
 
 from aggregator.commands.base import BaseCommand
 from aggregator.commands.subscribe import SubscribeCommand
@@ -17,7 +18,12 @@ class Aggregator:
         if not asyncio.get_event_loop().is_running():
             raise ValueError('You must run .start() in running event loop!')
 
-        await self.client.start(phone=self._phone, code_callback=lambda: self._code)
+        try:
+            await self.client.start(phone=self._phone, code_callback=lambda: self._code)
+        except errors.FloodWaitError as e:
+            print('Have to sleep', e.seconds, 'seconds')
+            time.sleep(e.seconds)
+            await self.client.start(phone=self._phone, code_callback=lambda: self._code)
         await SubscribeCommand.load_subscribtions(self.client)
         return self.client.run_until_disconnected()
 

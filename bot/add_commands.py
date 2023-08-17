@@ -4,9 +4,7 @@ from telethon.events import StopPropagation, NewMessage
 from aggregator.aggregator import Aggregator
 from aggregator.commands.subscribe import SubscribeCommand
 from db.bot_db import get_user_subscribtions
-from db.tables.models.user_state import State
 from errors import TelegramError
-from bot.state_machine import state
 
 
 async def add_commands(
@@ -35,7 +33,7 @@ async def add_commands(
     async def _show_message_from_channel(event):
 
         channel_id = event.message.fwd_from.from_id.channel_id
-        async for subscribtion in get_user_subscribtions(channel_id=channel_id):
+        for subscribtion in await get_user_subscribtions(channel_id=channel_id):
             user = subscribtion.user_id
             await event.message.forward_to(user)
         raise StopPropagation

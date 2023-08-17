@@ -2,7 +2,7 @@ from typing import Optional
 
 from telethon.events import StopPropagation
 
-from db.tables.models.user_state import State, UserState
+from db.tables.user_state import State, UserState
 
 
 def state(input_state: State, output_state: Optional[State] = None):

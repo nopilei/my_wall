@@ -67,9 +67,12 @@ class SubscribeCommand(BaseCommand):
 
     @classmethod
     async def load_subscribtions(cls, client: TelegramClient):
-        async for channel_id in await get_all_channels():
+        for channel_id in await get_all_channels():
+            print(channel_id, 5432342)
             client.add_event_handler(cls._consume, events.NewMessage(chats=[channel_id]))
+            # print(client.list_event_handlers(), 89)
 
     @staticmethod
     async def _consume(event):
+        print(os.environ['BOT_USER_NAME'], 324234)
         await event.message.forward_to(os.environ['BOT_USER_NAME'])

@@ -3,18 +3,15 @@ import os
 
 from dotenv import load_dotenv
 
-from db.setup_db import setup_db
+from aggregator.aggregator import Aggregator
+from bot.bot import Bot
 
 
 async def run():
     load_dotenv()
-    setup_db()
-
-    from aggregator.aggregator import Aggregator
-    from bot.bot import Bot
 
     aggregator = Aggregator(
-        session_name=os.environ['AGGREGATOR_SESSIO_NAME'],
+        session_name=os.environ['AGGREGATOR_SESSION_NAME'],
         api_id=int(os.environ['AGGREGATOR_API_ID']),
         api_hash=os.environ['AGGREGATOR_API_HASH'],
         phone=os.environ['AGGREGATOR_PHONE_NUMBER'],
