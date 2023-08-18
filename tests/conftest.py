@@ -9,11 +9,6 @@ from sqlalchemy.orm import Session, declarative_base, scoped_session
 from db import UserState, State, Base
 
 
-@pytest.fixture
-def user_state_default():
-    return mixer.blend(UserState, current_state=State.DEFAULT)
-
-
 #
 @pytest.fixture(scope="session")
 def event_loop():
@@ -45,3 +40,11 @@ async def db_session(_db_session_maker):
 
     await test_session.rollback()
     await test_session.close()
+
+
+@pytest.fixture(params=[s.value for s in State])
+async def user_state_in_db(request, db_session):
+    user_state = mixer.blend(UserState, current_state=request.param)
+    async with db_session.begin():
+        db_session.add(user_state)
+    return user_state
