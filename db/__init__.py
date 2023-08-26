@@ -1,4 +1,4 @@
-from .engine import engine, Session
+from .engine import Session
 from .tables.base import Base
 from .tables.user_state import UserState
 from .tables.user_state import State
