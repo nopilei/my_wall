@@ -1,19 +1,25 @@
 from functools import wraps
+from collections.abc import Callable, Awaitable
+from typing import ParamSpec
 
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.ext.asyncio import AsyncSession
 from telethon.events import StopPropagation
 
 from db import Session, State, UserState
 
+P = ParamSpec('P')
+THandler = Callable[P, Awaitable]
 
-def state(input_state: State | str, output_state: State | str | None = None):
+
+def state(input_state: State | str, output_state: State | str | None = None) -> Callable[[THandler], THandler]:
     input_state = input_state.value if isinstance(input_state, State) else input_state
     output_state = output_state.value if isinstance(output_state, State) else output_state
 
-    def wrapper(handler):
+    def wrapper(handler: THandler) -> THandler:
         @wraps(handler)
-        async def wrapped_handler(*args, **kwargs):
+        async def wrapped_handler(*args: P.args, **kwargs: P.args) -> Awaitable:
             event = args[0]
             user_id = event.peer_id.user_id
 
@@ -31,15 +37,16 @@ def state(input_state: State | str, output_state: State | str | None = None):
                     return result
 
         return wrapped_handler
+
     return wrapper
 
 
-async def update_state_if_needed(current_state, output_state):
+async def update_state_if_needed(current_state: UserState, output_state: str) -> None:
     if output_state:
         current_state.current_state = output_state
 
 
-async def get_current_state(session, user_id):
+async def get_current_state(session: AsyncSession, user_id: int) -> UserState:
     try:
         instance = await (session.execute(select(UserState).filter_by(user_id=user_id)))
         instance = instance.scalar_one()

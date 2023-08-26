@@ -1,6 +1,8 @@
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 import pytest
+from faker import Faker
+from sqlalchemy.ext.asyncio import AsyncSession
 from telethon.events import StopPropagation
 
 from bot.state_machine import get_current_state, state
@@ -8,15 +10,15 @@ from db import State, UserState
 
 
 class TestStateUtils:
-    async def test_update_state(self, db_session, user_state):
+    async def test_update_state(self, db_session: AsyncSession, user_state: UserState):
         current_state = await get_current_state(user_id=user_state.user_id, session=db_session)
         assert current_state.current_state == user_state.current_state
 
-    async def test_get_current_state_of_user_in_db(self, db_session, user_state):
+    async def test_get_current_state_of_user_in_db(self, db_session: AsyncSession, user_state: UserState):
         current_state = await get_current_state(user_id=user_state.user_id, session=db_session)
         assert current_state.current_state == user_state.current_state
 
-    async def test_get_current_state_of_user_not_in_db(self, db_session):
+    async def test_get_current_state_of_user_not_in_db(self, db_session: AsyncSession):
         user_id_not_in_db = 1111
         current_state = await get_current_state(user_id=user_id_not_in_db, session=db_session)
         assert current_state.current_state == State.DEFAULT.value
@@ -26,11 +28,11 @@ class TestStateUtils:
 class TestState:
     async def test_state_changed_from_input_state(
             self,
-            db_session,
-            faker,
-            different_state,
+            db_session: AsyncSession,
+            faker: Faker,
+            different_state: str,
             user_state: UserState,
-            event,
+            event: Mock,
     ):
         handler = AsyncMock(return_value=faker.name())
         wrapped_handler = state(user_state.current_state, different_state)(handler)
@@ -43,10 +45,10 @@ class TestState:
 
     async def test_state_is_not_allowed(
             self,
-            db_session,
-            different_state,
+            db_session: AsyncSession,
+            different_state: str,
             user_state: UserState,
-            event
+            event: Mock
     ):
         old_state = user_state.current_state
         handler = AsyncMock()
@@ -60,10 +62,10 @@ class TestState:
 
     async def test_state_changes_when_stop_propagation_raised(
             self,
-            db_session,
-            different_state,
+            db_session: AsyncSession,
+            different_state: str,
             user_state: UserState,
-            event
+            event: Mock
     ):
         handler = AsyncMock(side_effect=StopPropagation)
         wrapped_handler = state(user_state.current_state, different_state)(handler)
@@ -76,10 +78,10 @@ class TestState:
 
     async def test_state_remains_unchanged_when_other_exception_raised(
             self,
-            db_session,
-            different_state,
+            db_session: AsyncSession,
+            different_state: str,
             user_state: UserState,
-            event
+            event: Mock
     ):
         old_state = user_state.current_state
         handler = AsyncMock(side_effect=Exception)
