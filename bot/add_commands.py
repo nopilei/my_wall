@@ -3,6 +3,8 @@ from telethon.events import StopPropagation, NewMessage
 
 from aggregator.aggregator import Aggregator
 from aggregator.commands.subscribe import SubscribeCommand
+from bot.state_machine import state
+from db import State
 from db.bot_db import get_user_subscribtions
 from errors import TelegramError
 
@@ -13,13 +15,13 @@ async def add_commands(
         aggregator_user_id: int,
 ):
     @bot.on(NewMessage(pattern='/sub', forwards=False))
-    # @state(State.DEFAULT, State.SUBSCRIBING)
+    @state(State.DEFAULT, State.SUBSCRIBING)
     async def _sub(event):
         await event.respond('Какой канал слушать?')
         raise StopPropagation
 
     @bot.on(NewMessage(forwards=False))
-    # @state(State.SUBSCRIBING, State.DEFAULT)
+    @state(State.SUBSCRIBING, State.DEFAULT)
     async def _get_channel_links(event):
         try:
             await aggregator.execute(SubscribeCommand, event)
@@ -39,7 +41,7 @@ async def add_commands(
         raise StopPropagation
 
     @bot.on(NewMessage(forwards=False))
-    # @state(State.DEFAULT)
+    @state(State.DEFAULT)
     async def _default_reply(event):
         await event.respond('Введите одну из комманд')
         raise StopPropagation

@@ -12,3 +12,8 @@ mixer = "==7.2.2"
 
 [requires]
 python_version = "3.10"
+
+[scripts]
+dev = "python main.py --env=dev"
+prod = "python main.py --env=prod"
+

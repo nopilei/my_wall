@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import (
 from db import Base
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope='session')
 def event_loop() -> asyncio.AbstractEventLoop:
     loop = asyncio.get_event_loop()
     yield loop

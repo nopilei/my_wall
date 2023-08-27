@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 import os
 
@@ -8,14 +9,17 @@ from bot.bot import Bot
 
 
 async def run():
-    load_dotenv()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--env', choices=['dev', 'prod'], required=True)
+    env = parser.parse_args().env
 
+    load_dotenv('dev.env' if env == 'dev' else 'prod.env')
     aggregator = Aggregator(
         session_name=os.environ['AGGREGATOR_SESSION_NAME'],
         api_id=int(os.environ['AGGREGATOR_API_ID']),
         api_hash=os.environ['AGGREGATOR_API_HASH'],
         phone=os.environ['AGGREGATOR_PHONE_NUMBER'],
-        code=os.environ['AGGREGATOR_CODE'],
+        code_callback=(lambda: os.environ['AGGREGATOR_CODE']) if env == 'dev' else None
     )
 
     bot = Bot(
@@ -26,8 +30,8 @@ async def run():
         aggregator=aggregator
     )
 
-    if os.environ['ENVIRONMENT'] == 'dev':
-        bot.bot.session.set_dc(
+    if env == 'dev':
+        bot.client.session.set_dc(
             os.environ['DEV_DC_NUMBER'],
             os.environ['DEV_DC_IP'],
             os.environ['DEV_DC_PORT'],
