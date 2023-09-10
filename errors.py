@@ -22,3 +22,7 @@ class SubscribtionFailed(TelegramError):
 
 class UnsubscribableEntity(TelegramError):
     default_message = 'Нельзя подписаться на этот канал'
+
+
+class AwaitingAcception(TelegramError):
+    default_message = 'Запрос на подписку в обработке. Как только вашу заявку одобрят вы начнете получать сообщения'

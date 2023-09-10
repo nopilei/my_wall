@@ -6,12 +6,12 @@ from unittest.mock import Mock
 from mixer.backend.sqlalchemy import mixer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db import UserState, State
+from db.tables import State, UserState
 
 
 @pytest.fixture(params=State)
 async def user_state(request: pytest.FixtureRequest, db_session: AsyncSession) -> UserState:
-    user_state = mixer.blend(UserState, user_id=random.randint(1, 100),  current_state=request.param.value)
+    user_state = mixer.blend(UserState, user_id=random.randint(1, 100), current_state=request.param.value)
     async with db_session.begin():
         db_session.add(user_state)
     return user_state

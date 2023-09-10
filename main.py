@@ -19,7 +19,6 @@ async def run():
         api_id=int(os.environ['AGGREGATOR_API_ID']),
         api_hash=os.environ['AGGREGATOR_API_HASH'],
         phone=os.environ['AGGREGATOR_PHONE_NUMBER'],
-        code_callback=(lambda: os.environ['AGGREGATOR_CODE']) if env == 'dev' else None
     )
 
     bot = Bot(
@@ -29,18 +28,6 @@ async def run():
         bot_token=os.environ['BOT_TOKEN'],
         aggregator=aggregator
     )
-
-    if env == 'dev':
-        bot.client.session.set_dc(
-            os.environ['DEV_DC_NUMBER'],
-            os.environ['DEV_DC_IP'],
-            os.environ['DEV_DC_PORT'],
-        )
-        aggregator.client.session.set_dc(
-            os.environ['DEV_DC_NUMBER'],
-            os.environ['DEV_DC_IP'],
-            os.environ['DEV_DC_PORT'],
-        )
 
     await bot.start()
 

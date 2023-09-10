@@ -7,7 +7,8 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from telethon.events import StopPropagation
 
-from db import Session, State, UserState
+from db.engine import Session
+from db.tables import State, UserState
 
 P = ParamSpec('P')
 THandler = Callable[P, Awaitable]
@@ -23,7 +24,7 @@ def state(input_state: State | str, output_state: State | str | None = None) -> 
             event = args[0]
             user_id = event.peer_id.user_id
 
-            async with Session() as session, session.begin():
+            async with Session.begin() as session:
                 current_state = await get_current_state(session, user_id)
                 if current_state.current_state == input_state:
                     try:

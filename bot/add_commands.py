@@ -4,8 +4,8 @@ from telethon.events import StopPropagation, NewMessage
 from aggregator.aggregator import Aggregator
 from aggregator.commands.subscribe import SubscribeCommand
 from bot.state_machine import state
-from db import State
 from db.bot_db import get_user_subscribtions
+from db.tables import State
 from errors import TelegramError
 
 
@@ -22,7 +22,7 @@ async def add_commands(
 
     @bot.on(NewMessage(forwards=False))
     @state(State.SUBSCRIBING, State.DEFAULT)
-    async def _get_channel_links(event):
+    async def _subscribe_by_channel_links(event):
         try:
             await aggregator.execute(SubscribeCommand, event)
         except TelegramError as err:
@@ -33,7 +33,6 @@ async def add_commands(
 
     @bot.on(NewMessage(from_users=[aggregator_user_id], forwards=True))
     async def _show_message_from_channel(event):
-
         channel_id = event.message.fwd_from.from_id.channel_id
         for subscribtion in await get_user_subscribtions(channel_id=channel_id):
             user = subscribtion.user_id

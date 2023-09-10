@@ -15,7 +15,7 @@ class Aggregator:
             api_id: int,
             api_hash: str,
             phone: str,
-            code_callback: Callable[[], str] | None
+            code_callback: Callable[[], str] | None = None
     ):
 
         self.client = TelegramClient(session_name, api_id, api_hash)

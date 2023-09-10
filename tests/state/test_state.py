@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from telethon.events import StopPropagation
 
 from bot.state_machine import get_current_state, state
-from db import State, UserState
+from db.tables import State, UserState
 
 
 class TestStateUtils:

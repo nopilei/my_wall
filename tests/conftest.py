@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncEngine
 )
 
-from db import Base
+from db.tables.base import Base
 
 
 @pytest.fixture(scope='session')
@@ -46,7 +46,7 @@ async def db_session(_db_engine: AsyncEngine, _db_session_maker: async_scoped_se
             await conn.execute(table.delete())
         await conn.execute(text('PRAGMA foreign_keys = 1;'))
 
-    test_session: AsyncSession = _db_session_maker(expire_on_commit=False)
+    test_session: AsyncSession = _db_session_maker()
     yield test_session
 
     await test_session.rollback()

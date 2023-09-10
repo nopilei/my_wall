@@ -1,28 +1,21 @@
-from sqlalchemy import select, and_, insert
-from sqlalchemy.dialects.sqlite import insert as sqlite_upsert
+from sqlalchemy import select, and_, ScalarResult
 
-from db import Session, UserSubscribtion
-
-
-async def add_subscribtion(user_id: int, channel_id: int):
-    async with Session() as session:
-        print(user_id, channel_id, 2342342)
-        stmt = select(UserSubscribtion).where(and_(
-            UserSubscribtion.channel_id == channel_id,
-            UserSubscribtion.user_id == user_id,
-        ))
-        subscribtion = (await session.scalars(stmt)).first()
-        print(subscribtion, 92992)
-        if not subscribtion:
-            stmt = insert(UserSubscribtion).values(channel_id=channel_id, user_id=user_id)
-            await session.execute(stmt)
-        await session.commit()
+from db.tables import UserSubscribtion
+from db.utils import with_session
 
 
-async def get_all_channels():
-    async with Session() as session:
-        stmt = select(UserSubscribtion.channel_id).distinct()
-        a = await session.scalars(stmt)
-        await session.commit()
-        print(a, 234)
-        return a
+@with_session
+async def add_subscribtion(user_id: int, channel_id: int) -> None:
+    stmt = select(UserSubscribtion).where(and_(
+        UserSubscribtion.channel_id == channel_id,
+        UserSubscribtion.user_id == user_id,
+    ))
+    subscribtion = (await add_subscribtion.session.scalars(stmt)).first()
+    if not subscribtion:
+        add_subscribtion.session.add(UserSubscribtion(channel_id=channel_id, user_id=user_id))
+
+
+@with_session
+async def get_all_channels() -> ScalarResult[UserSubscribtion]:
+    stmt = select(UserSubscribtion.channel_id).distinct()
+    return await get_all_channels.session.scalars(stmt)
